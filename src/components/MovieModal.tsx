@@ -34,6 +34,13 @@ export const MovieModal: React.FC<MovieModalProps> = ({
       try {
         const url = `/api/movie-info?movieCd=${encodeURIComponent(movieCd)}`;
         const res = await fetch(url);
+        const contentType = res.headers.get('content-type') || '';
+
+        if (!res.ok || !contentType.includes('application/json')) {
+          setError('상세 정보를 불러올 수 없거나 서버 응답 형식이 올바르지 않습니다.');
+          return;
+        }
+
         const data = await res.json();
 
         if (data.movieInfoResult?.movieInfo) {

@@ -62,11 +62,19 @@ export default function App() {
       if (filterMulti === 'INDEPENDENT') url += '&multiMovieYn=Y';
 
       const response = await fetch(url);
-      const data: BoxOfficeResponse = await response.json();
+      const contentType = response.headers.get('content-type') || '';
 
+      if (!response.ok || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.warn('Non-JSON response received:', text.substring(0, 100));
+        setError('서버 응답이 올바른 JSON 형식이 아닙니다. 백엔드 서버를 확인해 주세요.');
+        return;
+      }
+
+      const data: BoxOfficeResponse = await response.json();
       setBoxOfficeData(data);
     } catch (err) {
-      console.error(err);
+      console.error('fetchBoxOffice error:', err);
       setError('박스오피스 데이터를 불러오는 도중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
